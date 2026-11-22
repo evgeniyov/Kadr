@@ -1,52 +1,57 @@
-# Kadr — architecture & module contracts
+# Kadr architecture and module contracts
 
-Kadr is a screenshot, annotation and screen recording app for macOS and Windows.
-Electron 44 (Chromium 152, Node 24). **Plain JavaScript, no bundler, no framework,
-no TypeScript.** UI languages: Russian and English.
+Kadr is a screenshot, annotation, and screen recording app for macOS and Windows.
+It uses Electron 44 with Chromium 152 and Node 24. The code is plain JavaScript and uses
+no bundler, framework, or TypeScript. The interface supports Russian and English.
 
-## Ground rules (read before writing code)
+## Code conventions
 
-- Main process: CommonJS (`'use strict'; require(...)`), files in `src/main/`.
-- Renderers: ES modules (`<script type="module" src="./index.js">`), one folder per window
-  in `src/renderer/<kind>/` with `index.html`, `index.js`, `style.css`.
-- Every page is loaded from the custom scheme **`kadr://app/renderer/<kind>/index.html`**.
-  - `kadr://app/<path>` → `src/<path>` (so a renderer imports `../../shared/ui.js`)
-  - `kadr://app/__data__/<path>` → Electron `userData` — this is what `ctx.dataUrl()` returns; same origin as pages, so canvases are never tainted
-  - `kadr://data/<path>` → Electron `userData` (captures, library, temp files)
-  - `kadr://modules/jsqr/...` → allow-listed `node_modules` packages
-  - Same origin everywhere ⇒ canvases are never tainted, `fetch` works, ES modules work.
-- Renderers have **no Node access**. They talk to main only through `window.kadr`
-  (see `src/preload/preload.js`): `kadr.invoke(channel, ...args)`, `kadr.send(...)`,
-  `kadr.on(channel, cb) → unsubscribe`, `kadr.platform`, `kadr.pathForFile(file)`.
-  Historical channel namespaces (actual calls are restricted by `src/main/ipc-policy.json`): `win: app: settings: clipboard: image: pin: editor: capture:
+- Use CommonJS in the main process. Files in `src/main/` use `'use strict'; require(...)`.
+- Use ES modules in renderers with `<script type="module" src="./index.js">`. Each window has a
+  folder under `src/renderer/<kind>/` with `index.html`, `index.js`, and `style.css`.
+- Load each page at `kadr://app/renderer/<kind>/index.html`.
+  - The protocol maps `kadr://app/<path>` to `src/<path>`. A renderer can import `../../shared/ui.js`.
+  - `ctx.dataUrl()` returns a URL under `kadr://app/__data__/<path>` for files in Electron's
+    `userData`. These URLs share an origin with the pages.
+  - `kadr://data/<path>` maps to Electron's `userData` for captures, the library, and temporary files.
+  - `kadr://modules/jsqr/...` maps to allowed `node_modules` packages.
+  - The shared origin lets renderers use `fetch` and ES modules and keeps canvases untainted.
+- Renderers have no Node access. They talk to the main process through `window.kadr`, defined in
+  `src/preload/preload.js`. The bridge has `kadr.invoke(channel, ...args)`, `kadr.send(...)`,
+  `kadr.on(channel, cb)`, `kadr.platform`, and `kadr.pathForFile(file)`.
+  `kadr.on(channel, cb)` returns a function that unsubscribes.
+  `src/main/ipc-policy.json` restricts calls within the historical channel namespaces
+  `win: app: settings: clipboard: image: pin: editor: capture:
   overlay: scroll: native: library: preview: recorder: ocr:`.
-- Binary data over IPC is `Uint8Array` (renderer) / `Buffer` (main).
-- Shared renderer helpers: `src/shared/ui.js` (`initPage`, `t`, `el`, `$`, `toast`,
-  `canvasToBytes`, `loadImage`, `setSettings`, `formatAccelerator`, `formatDuration`…).
-  Always call `await initPage()` first in a window's `index.js`.
-- Design system: `src/shared/ui.css` (CSS variables for light/dark, `.btn`, `.ibtn`, `.seg`,
-  `.switch`, `.input`, `.panel`, `.card`, `[data-tip]` tooltips, `.toast`). Link it before
-  your own CSS: `<link rel="stylesheet" href="../../shared/ui.css">`. Look & feel: compact,
-  native-looking macOS/Win11 style, translucent panels, SF/Segoe font, 13px base.
-- i18n: `src/shared/i18n/index.mjs` merges per-module dictionaries. **Each module owns its
-  own dictionary file** (`core.mjs`, `editor.mjs`, `recorder.mjs`) with `{ ru: {...}, en: {...} }`.
-  Keys are prefixed with the module name (`editor.tool.arrow`). Every string shown to the
-  user must go through `t()` and exist in both `ru` and `en`. In HTML use
-  `data-i18n="key"`, `data-i18n-tip`, `data-i18n-title`, `data-i18n-placeholder`.
-  Main process: `ctx.t(key, vars)`.
-- Settings: `src/main/settings.js` (defaults for every section incl. `editor.*` and
-  `recording.*`). Renderer: `getSettings()`, `setSettings(deepPartialPatch)`; changes are
-  broadcast as `settings:changed`. Main: `ctx.settings.get('a.b')`, `ctx.settings.set(patch)`.
-  A module may add keys with `ctx.settings.registerDefaults(section, obj)`.
-- Shared main context: `src/main/context.js` (`ctx`): `paths`, `settings`, `t`,
+- For binary data over interprocess communication (IPC), use `Uint8Array` in the renderer and
+  `Buffer` in the main process.
+- `src/shared/ui.js` provides renderer helpers such as `initPage`, `t`, `el`, `$`, `toast`,
+  `canvasToBytes`, `loadImage`, `setSettings`, `formatAccelerator`, and `formatDuration`.
+  Call `await initPage()` first in a window's `index.js`.
+- `src/shared/ui.css` defines light and dark CSS variables, `.btn`, `.ibtn`, `.seg`,
+  `.switch`, `.input`, `.panel`, `.card`, `[data-tip]` tooltips, and `.toast`.
+  Link it before your own CSS using `<link rel="stylesheet" href="../../shared/ui.css">`.
+  Use compact spacing, translucent panels, and 13px base text in SF on macOS or Segoe on
+  Windows 11 to match the platform.
+- `src/shared/i18n/index.mjs` merges module dictionaries. Each module owns its dictionary
+  file, such as `core.mjs`, `editor.mjs`, or `recorder.mjs`, with `{ ru: {...}, en: {...} }`.
+  Prefix keys with the module name, as in `editor.tool.arrow`. Pass every user-visible string
+  through `t()` and include it in both `ru` and `en`. In HTML, use `data-i18n="key"`,
+  `data-i18n-tip`, `data-i18n-title`, and `data-i18n-placeholder`. In the main process, use
+  `ctx.t(key, vars)`.
+- `src/main/settings.js` defines defaults for every section, including `editor.*` and `recording.*`.
+  In renderers, use `getSettings()` and `setSettings(deepPartialPatch)`. Settings changes go out
+  as `settings:changed`. In the main process, use `ctx.settings.get('a.b')` and
+  `ctx.settings.set(patch)`. Modules can add keys with `ctx.settings.registerDefaults(section, obj)`.
+- `src/main/context.js` provides `ctx` to the main process. It has `paths`, `settings`, `t`,
   `createWindow(kind, { params, page, ...BrowserWindowOptions })`, `windowsOfKind`,
-  `handle(channel, fn)` / `on(channel, fn)` (ipcMain wrappers), `notify`, `formatFileName`,
-  `uniquePath`, `newId`, `displayById`, `dataUrl(absPath)`, and `ctx.modules.<name>` —
-  the loaded modules (filled by `index.js`, use lazily inside functions, never at require time).
-- Window params: `ctx.createWindow('editor', { params: {...} })`; the renderer reads them from
-  `initPage()` → `{ params }`.
-- Keep code readable: short focused functions, comments only where the "why" is not obvious.
-- Nothing may block the main process for long (no sync image loops > ~50ms in main).
+  `handle(channel, fn)` and `on(channel, fn)` for `ipcMain`, `notify`, `formatFileName`,
+  `uniquePath`, `newId`, `displayById`, and `dataUrl(absPath)`. The main `index.js` adds loaded
+  modules to `ctx.modules.<name>`. Read them inside functions when needed, after module loading.
+- Pass parameters with `ctx.createWindow('editor', { params: {...} })`. The renderer gets
+  `{ params }` from `initPage()`.
+- Keep functions short and focused. Comment when the reason for a choice needs explanation.
+- Keep the main process responsive. Synchronous image loops must stay under about 50 ms.
 
 ## Directory ownership
 
@@ -55,147 +60,178 @@ no TypeScript.** UI languages: Russian and English.
 | `src/main/{index,context,settings,protocol,basics,capture,tray,hotkeys,library,pin,preview,ocr,settings-window,scroll-capture,ffmpeg}.js` | core |
 | `src/renderer/{overlay,preview,pin,library,settings,scroller}/` | core |
 | `src/shared/*`, `src/shared/i18n/core.mjs` | core |
-| `src/main/editor.js`, `src/renderer/editor/`, `src/shared/i18n/editor.mjs` | **editor** |
-| `src/main/recording.js`, `src/renderer/recorder/**`, `src/shared/i18n/recorder.mjs` | **recorder** |
-| `src/main/native/**`, `native/**`, `resources/bin/**` | **native** |
+| `src/main/editor.js`, `src/renderer/editor/`, `src/shared/i18n/editor.mjs` | editor |
+| `src/main/recording.js`, `src/renderer/recorder/**`, `src/shared/i18n/recorder.mjs` | recorder |
+| `src/main/native/**`, `native/**`, `resources/bin/**` | native |
 
-Do not edit files owned by another module. If you need something from another module that
-is not in this contract, write a clear note in your final report instead.
+Edit only the files your module owns. If you need another module to provide something outside
+this contract, ask for it in your final report.
 
-## Generic IPC (implemented in `src/main/basics.js`)
+## Generic IPC
 
-- `win:params` → params · `win:close` · `win:hide` · `win:show({focus})` · `win:focus` ·
-  `win:minimize` · `win:toggle-maximize` · `win:get-bounds` · `win:set-bounds(b, animate)` ·
-  `win:set-size({width,height,center})` · `win:set-min-size` · `win:center` · `win:set-title` ·
-  `win:set-ignore-mouse(ignore, forward)` · `win:set-opacity(v)` ·
-  `win:set-always-on-top(v, level)` · `win:set-resizable` · `win:display` → `{id,bounds,workArea,scaleFactor}`
-- `settings:get` · `settings:set(patch)` · `settings:reset` · `settings:defaults`
-- `app:locale` · `app:version` · `app:open-external(url)` · `app:reveal(path)` ·
-  `app:open-path(path)` · `app:open-settings(tab?)` · `app:open-library` ·
-  `app:quit` · `app:notify({title, body})` · `app:choose-folder({defaultPath})` ·
-  `app:choose-file({filters})` · `app:confirm({message, detail, ok, cancel, danger})` → bool ·
-  `app:permissions` → `{screen, accessibility, microphone}` · `app:request-permission(kind)`
-- `clipboard:write-image(pngBytes)` · `clipboard:write-text(text)` · `clipboard:read-text` ·
-  `clipboard:read-image` → pngBytes | null
-- `image:save({data, ext, name?, saveAs?, silent?})` → path | null (default folder + file-name
-  template from settings; shows a notification) · `image:temp-file({data, ext, name?})` → path ·
-  `image:open-with-default({data, ext})`
-- `image:start-drag` (**send**, call inside `dragstart` after `e.preventDefault()`):
-  `{ path }` or `{ data, ext, name? }` → native file drag out of the app.
+`src/main/basics.js` implements these calls.
 
-## Core IPC (implemented by core, available to everyone)
+- `win:params` returns the window parameters. Other window calls are `win:close`, `win:hide`,
+  `win:show({focus})`, `win:focus`, `win:minimize`, `win:toggle-maximize`, `win:get-bounds`,
+  `win:set-bounds(b, animate)`, `win:set-size({width,height,center})`, `win:set-min-size`,
+  `win:center`, `win:set-title`, `win:set-ignore-mouse(ignore, forward)`, `win:set-opacity(v)`,
+  `win:set-always-on-top(v, level)`, and `win:set-resizable`.
+  `win:display` returns `{id,bounds,workArea,scaleFactor}`.
+- Settings calls are `settings:get`, `settings:set(patch)`, `settings:reset`, and `settings:defaults`.
+- App calls are `app:locale`, `app:version`, `app:open-external(url)`, `app:reveal(path)`,
+  `app:open-path(path)`, `app:open-settings(tab?)`, `app:open-library`, `app:quit`,
+  `app:notify({title, body})`, `app:choose-folder({defaultPath})`, `app:choose-file({filters})`,
+  and `app:request-permission(kind)`.
+  `app:confirm({message, detail, ok, cancel, danger})` returns a boolean.
+  `app:permissions` returns `{screen, accessibility, microphone}`.
+- Clipboard calls are `clipboard:write-image(pngBytes)`, `clipboard:write-text(text)`,
+  `clipboard:read-text`, and `clipboard:read-image`. The last returns PNG bytes or null.
+- `image:save({data, ext, name?, saveAs?, silent?})` returns a path or null. It uses the default
+  folder and filename template from settings and shows a notification.
+  `image:temp-file({data, ext, name?})` returns a path.
+  `image:open-with-default({data, ext})` opens the image in its default app.
+- In `dragstart`, call `e.preventDefault()`, then send `image:start-drag` with `{ path }` or
+  `{ data, ext, name? }` to start a native file drag out of the app.
 
-- `capture:start({ mode, return? })` — modes: `area fullscreen window activeWindow repeatArea
-  scrolling scrollingUp scrollingManual ocr colorPicker delayed`. With `return: true` (only
-  `area`/`window`/`fullscreen`) the result is returned instead of going through the after-capture
-  pipeline: `{ data: pngBytes, scale, width, height } | null`. Used by the editor's "Add capture".
-- `capture:select-region({ purpose })` → `null | { displayId, scaleFactor, displayBounds,
+## Core IPC
+
+The core module implements these calls for all modules.
+
+- `capture:start({ mode, return? })` accepts these modes.
+  `area fullscreen window activeWindow repeatArea
+  scrolling scrollingUp scrollingManual ocr colorPicker delayed`.
+  In `area`, `window`, and `fullscreen` modes, set `return: true` to get
+  `{ data: pngBytes, scale, width, height } | null` and skip the normal steps after capture.
+  The editor uses this option for "Add capture".
+- `capture:select-region({ purpose })` returns
+  `null | { displayId, scaleFactor, displayBounds,
   rect: {x,y,width,height} /* DIP, relative to the display */, global: {x,y,width,height} }`.
-  Main-process equivalent: `ctx.modules.capture.selectRegion({ purpose })`.
-- `pin:create({ data: pngBytes, scale, x?, y? })` — floating always-on-top image.
-- `native:ocr({ data: pngBytes })` → `{ text, lines: [{ text, box:{x,y,width,height} }], qr: [{ text, box }] }`
-  (box in image pixels, top-left origin). Uses Vision on macOS, tesseract.js elsewhere; QR via Vision/jsQR.
-- `native:remove-bg({ data })` → pngBytes (throws `unsupported` if not available).
-- `native:capabilities` → `{ ocr, removeBackground, systemAudio, scrollInject, windowList }` (booleans).
-- `library:update-image({ id, data, baseVersion })` → `{ id, version } | null`. Replaces the
-  image when the base version matches. A stale editor gets a new library item and a
-  notification. The result identifies the item and version for the next save.
-- `editor:open` is **not** an IPC; main calls `ctx.modules.editor.openEditor(...)`.
+  In the main process, call `ctx.modules.capture.selectRegion({ purpose })`.
+- `pin:create({ data: pngBytes, scale, x?, y? })` pins an image above other windows.
+- `native:ocr({ data: pngBytes })` returns
+  `{ text, lines: [{ text, box:{x,y,width,height} }], qr: [{ text, box }] }`.
+  Each box uses image pixels and a top-left origin. Text recognition uses Vision on macOS and
+  Tesseract.js elsewhere. QR detection uses Vision or jsQR.
+- `native:remove-bg({ data })` returns PNG bytes or throws `unsupported` if it is unavailable.
+- `native:capabilities` returns booleans in `{ ocr, removeBackground, systemAudio, scrollInject, windowList }`.
+- `library:update-image({ id, data, baseVersion })` returns `{ id, version } | null`.
+  It replaces the image if the base version matches. Otherwise it creates a new library item
+  and notifies the user. The result identifies the item and version to use for the next save.
+- To open the editor, call `ctx.modules.editor.openEditor(...)` from the main process.
+  There is no `editor:open` IPC channel.
 
 ## Module contracts
 
-### Editor (`src/main/editor.js`, `src/renderer/editor/`)
+### Editor
 
-`src/main/editor.js` exports `{ register(), openEditor(opts) }`.
+`src/main/editor.js` exports `{ register(), openEditor(opts) }`. The renderer lives in
+`src/renderer/editor/`.
 
-`openEditor({ imagePath, scale = 1, meta = {}, options = {} })` opens a new editor window:
-- `imagePath`: absolute PNG path inside `userData` (load it in the renderer via `ctx.dataUrl(imagePath)`).
-- `scale`: device pixels per DIP of the capture (2 on Retina). The editor shows the image at
-  `1/scale` so 100% zoom looks like the real screen; annotation sizes are in DIP × scale.
-- `meta`: `{ source, appName?, windowTitle?, libraryId?, libraryVersion?, fileName?, filePath? }`.
-  A fresh capture starts at library version 0.
-- `options`: `{ backdrop?: boolean /* auto-enable backdrop (window with background) */, tool?: string }`.
-- Window: sized to fit the image (≥ 720×480, ≤ 90% of the work area), centered, focused,
-  `titleBarStyle: 'hiddenInset'` on macOS; multiple editors may be open simultaneously.
+`openEditor({ imagePath, scale = 1, meta = {}, options = {} })` opens a new editor window.
 
-### Editor features
+- Pass an absolute PNG path inside `userData` as `imagePath`. Load it in the renderer with
+  `ctx.dataUrl(imagePath)`.
+- Set `scale` to device pixels per device-independent pixel (DIP) in the capture, with 2 on Retina.
+  The editor displays the image at `1/scale` so 100% zoom matches the screen. Annotation sizes
+  use DIP × scale.
+- Pass `{ source, appName?, windowTitle?, libraryId?, libraryVersion?, fileName?, filePath? }`
+  as `meta`. A new capture starts at library version 0.
+- Pass `{ backdrop?: boolean /* auto-enable backdrop (window with background) */, tool?: string }`
+  as `options`.
+- The editor centers and focuses the window and sizes it to fit the image, with a minimum
+  of 720×480 and a maximum of 90% of the work area. On macOS it uses
+  `titleBarStyle: 'hiddenInset'`. Users can open multiple editors at once.
 
-- Canvas with zoom (pinch, ⌘/Ctrl+scroll, ⌘+/⌘-/⌘0/⌘1), pan (space-drag, scroll), px/pt toggle.
-- Tools and keyboard shortcuts include Arrow `A` (styles: classic, curved/bezier, double-headed, thin,
-  thick tapered), Rectangle `R` (outline / semi-transparent fill / solid, rounded corners),
-  Oval `O`, Line `L` (solid/dashed/dotted), Text `T` (plain / outlined / box background,
-  font size, multi-line, edit on double-click), Counter `C` (numbered steps 1,2,3… with
-  optional label, auto-increment), Freehand `D`, Highlighter `H` (marker, multiply blend),
-  Blur/Erase `B` (pixelate, blur, erase = fill with surrounding colour, and *-text variants that
-  only conceal recognised text lines inside the area via `native:ocr`), Spotlight `S`
-  (darken everything except the area; several areas allowed), Magnifier `M` (circular loupe
-  enlarging a region, placed anywhere), Ruler `1`/`2` (smart ruler that measures distance
-  between edges horizontally/vertically from the cursor, with pixel labels), Crop (drag handles,
-  `Enter` to apply, can also *expand* the canvas beyond the image = uncrop), Color picker `I`
-  (hover shows colour under cursor in the status bar; click copies in `settings.colorFormat`).
-- Every object: select, move, resize/re-shape with handles, delete, duplicate (⌘D),
-  bring forward/back, change colour/size/opacity/style after creation. Undo/redo (⌘Z/⇧⌘Z).
-- Palette: preset colours + custom colours (stored in `settings.editor.customColors`) + system
-  colour input; size presets; the last used tool/colour/size persist in `settings.editor`.
-- Backdrop `K`: padding, gradient presets + custom 2-colour gradient +
-  angle, solid, custom image (`app:choose-file`), transparent; inner corner radius, outer radius,
-  shadow, aspect-ratio templates (auto, 16:9, 4:3, 1:1, 3:2, 9:16, Twitter 16:9, …),
-  auto-crop edges, randomize. Settings persist in `settings.editor.backdrop`.
-- Image objects: paste an image (⌘V), drop an image file, **Add capture** (`capture:start`
-  with `return: true`), all movable/resizable.
-- Resize image dialog (px or %, keep ratio). Rotate 90°, flip.
-- OCR: select area (or whole image) → recognised text + QR shown in a popover, copy
-  text/copy without line breaks.
-- Remove background (if `native:capabilities.removeBackground`).
-- Output: Copy (⌘C; `Esc` = copy and close by default),
-  Save (⌘S to default folder), Save As (⇧⌘S; png/jpg/webp), drag-out handle (drag the final
-  image into other apps via `image:start-drag`), Pin (⌘P → `pin:create`), Open in default app,
-  Animated GIF export "before/after" (original ↔ annotated) — may use `src/main/ffmpeg.js`.
-  Output format/quality from settings. When `meta.libraryId` is set, call
-  `library:update-image` after Copy/Save so the library keeps the edited version.
-- Toolbar on top (tools + properties of the current tool), status bar at bottom (image size,
-  zoom, cursor position, colour under cursor). Keyboard shortcuts shown in tooltips.
+### Editor tools
 
-### Recorder (`src/main/recording.js`, `src/renderer/recorder/**`)
+- Zoom with pinch, ⌘/Ctrl+scroll, or ⌘+/⌘-/⌘0/⌘1. Pan with space-drag or scrolling.
+  Switch between pixels and points.
+- Arrow `A` has classic, curved (Bézier), double-headed, thin, and thick tapered styles.
+  Rectangle `R` supports outlines, semi-transparent or solid fills, and rounded corners.
+  Use Oval `O` for ovals. Line `L` has solid, dashed, and dotted styles.
+- Text `T` supports plain text, outlines, a box background, font sizes, and multiple lines.
+  Double-click to edit. Counter `C` numbers steps in order (1, 2, 3, and so on) and can add a label.
+- Draw strokes with Freehand `D`. Highlighter `H` uses a multiply blend.
+  Blur/Erase `B` can pixelate, blur, or fill with the surrounding color. Its `*-text` variants
+  use `native:ocr` to conceal only recognized lines inside the area.
+- Spotlight `S` darkens everything outside one or more selected areas. Magnifier `M` adds a
+  circular view of a region that you can place anywhere. Ruler `1`/`2` measures distance
+  between edges horizontally or vertically from the cursor and labels it in pixels.
+- Crop with the drag handles and press `Enter` to apply. You can also expand the canvas beyond
+  the image. Color picker `I` shows the color under the cursor in the status bar. Click to
+  copy a color in `settings.colorFormat`.
+- Select, move, resize, reshape, delete, or duplicate objects. Use the handles to resize or
+  reshape and ⌘D to duplicate. Change stacking order, color, size, opacity, or style after
+  creation. Use ⌘Z to undo and ⇧⌘Z to redo.
+- Use preset colors, custom colors in `settings.editor.customColors`, or the system color
+  picker. The editor has size presets. It stores the last tool, color, and size in `settings.editor`.
+- Backdrop `K` supports padding, preset gradients, custom two-color gradients with an angle,
+  solid colors, custom images via `app:choose-file`, and transparency. It has inner and outer
+  corner radii, shadow, automatic edge cropping, and randomization. Aspect ratio templates
+  include auto, 16:9, 4:3, 1:1, 3:2, 9:16, and Twitter 16:9. The editor stores these settings
+  in `settings.editor.backdrop`.
+- Paste an image with ⌘V, drop an image file, or use **Add capture**. Add capture calls
+  `capture:start` with `return: true`. Move or resize any of these image objects.
+- Resize in pixels or percent and keep the aspect ratio if needed. Rotate by 90° or flip the image.
+- Run text recognition on a selection or the whole image. The popover shows recognized text
+  and QR codes. It can copy text with or without line breaks.
+- Remove the background if `native:capabilities.removeBackground` is available.
+- Use ⌘C for Copy. By default, `Esc` copies and closes the editor. Use ⌘S for Save to the default
+  folder or ⇧⌘S for Save As in `png`, `jpg`, or `webp`. Use the drag handle to send the image to
+  another app via `image:start-drag`.
+- Pin an image with ⌘P via `pin:create`, open it in its default app, or export a before-and-after
+  GIF of the original and annotated image. GIF export may use `src/main/ffmpeg.js`.
+  Use the output format and quality from settings. If `meta.libraryId` is set, call
+  `library:update-image` after Copy or Save so the library keeps the edited version.
+- The top toolbar shows the tools and the current tool's properties. The bottom status bar
+  shows image size, zoom, cursor position, and the color under the cursor. Tooltips show shortcuts.
 
-`src/main/recording.js` exports:
-`{ register(), openPanel(opts?), toggle(), stop(), cancel(), isRecording(), events }`
-where `events` is an `EventEmitter` emitting `'state'` with
+### Recorder
+
+`src/main/recording.js` exports
+`{ register(), openPanel(opts?), toggle(), stop(), cancel(), isRecording(), events }`.
+The renderer lives in `src/renderer/recorder/**`.
+`events` is an `EventEmitter` that emits `'state'` with
 `{ status: 'idle'|'countdown'|'recording'|'paused'|'processing', startedAt, elapsedMs }`.
-The tray and hotkeys (core) call these functions and listen to `events`.
+The core tray and hotkey modules call these functions and listen to `events`.
 
-Requirements:
-- Source picker panel (compact window): **Screen** (choose display, thumbnails), **Window**
-  (thumbnails of windows via `desktopCapturer`), **Region** (calls
-  `ctx.modules.capture.selectRegion({ purpose: 'record' })`, remembered in
-  `settings.recording.lastRegion` so the same area can be re-recorded).
-- Audio: microphone on/off + device selection (+ level meter), system audio on/off.
-  - Windows: system audio via Chromium desktop loopback.
-  - macOS: Chromium's loopback does not work with a custom picker (electron#52738), so use
-    `ctx.modules.native.systemAudio.start(path)/pause()/resume()/stop()` (ScreenCaptureKit
-    helper) and mix it in with ffmpeg after recording. If `native.capabilities().systemAudio`
-    is false, disable the toggle with an explanation.
-- Options from `settings.recording` (format mp4/webm, fps, quality, cursor, countdown).
-- Recording runs in a hidden worker window (`backgroundThrottling: false`) using
-  `getUserMedia({ video: { mandatory: { chromeMediaSource: 'desktop', chromeMediaSourceId } } })`,
-  region crop via `MediaStreamTrackProcessor` → `new VideoFrame(frame, { visibleRect })` →
-  `MediaStreamTrackGenerator` (even width/height!), audio mixed with WebAudio,
-  `MediaRecorder` (`video/mp4;codecs=avc1.640028,mp4a.40.2` when supported, otherwise webm),
-  chunks streamed to main and appended to a temp file (never keep the whole video in memory).
-- After stop: ffmpeg post-processing (remux to seekable file with `+faststart`, mix mac system
-  audio), save to `settings.recording.saveFolder` using `settings.recording.fileNameTemplate`,
-  then the **video editor window** (`recorder/editor`): preview, trim, crop, resize, format
-  conversion (mp4/webm/mov/mkv/gif/m4a/mp3), fps, mute, speed; `openVideoEditor(file)` opens any
-  existing video in it (tray → “Open video…”).
-- While recording: small floating control bar (timer, pause/resume, stop, mic mute, discard),
-  a click-through dashed frame around a recorded region, `setContentProtection(true)` on all
-  recorder UI windows so they never appear in the video, `powerSaveBlocker` active.
-- Countdown overlay (3-2-1) before starting (settings.recording.countdown).
-- `src/main/ffmpeg.js` (core) provides `ffmpegPath()` and `run(args, { onStderr }) → Promise`.
+- The compact source picker has **Screen** for displays, **Window** for windows, and **Region**
+  for an area. The first two show thumbnails. **Window** gets its thumbnails through
+  `desktopCapturer`. **Region** calls `ctx.modules.capture.selectRegion({ purpose: 'record' })`
+  and stores the area in `settings.recording.lastRegion` for the next recording.
+- Users can switch the microphone on or off, select a device, and see its level. They can also
+  switch system audio on or off. Windows uses Chromium desktop loopback for system audio.
+  On macOS, Chromium loopback fails with a custom picker. See electron#52738. Use the
+  ScreenCaptureKit helper through `ctx.modules.native.systemAudio.start(path)/pause()/resume()/stop()`
+  and mix system audio with FFmpeg after recording. If `native.capabilities().systemAudio`
+  is false, disable the toggle and explain why.
+- Use `settings.recording` for MP4 or WebM format, frame rate, quality, cursor visibility, and
+  countdown. The countdown overlay shows 3, 2, 1 before recording when
+  `settings.recording.countdown` is on.
+- Record in a hidden worker window with `backgroundThrottling: false`. Get the stream with
+  `getUserMedia({ video: { mandatory: { chromeMediaSource: 'desktop', chromeMediaSourceId } } })`.
+  To crop a region, read frames with `MediaStreamTrackProcessor`, create
+  `new VideoFrame(frame, { visibleRect })`, and pass each frame to `MediaStreamTrackGenerator`.
+  Use even widths and heights. Mix audio with WebAudio. Use `MediaRecorder` with
+  `video/mp4;codecs=avc1.640028,mp4a.40.2` when available and WebM otherwise. Stream chunks to the
+  main process and append them to a temporary file so the app never holds the whole video in memory.
+- After recording stops, use FFmpeg to make a seekable file with `+faststart` and mix in macOS system audio.
+  Save to `settings.recording.saveFolder` using `settings.recording.fileNameTemplate`.
+  Open the result in the video editor at `recorder/editor`. The editor previews, trims, crops,
+  resizes, converts to MP4, WebM, MOV, MKV, GIF, M4A, or MP3, and changes frame rate, mute, or speed.
+  `openVideoEditor(file)` opens an existing video. Choose "Open video..." in the tray menu.
+- During recording, show a small floating control bar with a timer and controls for pause,
+  resume, stop, microphone mute, and discard. Draw a click-through dashed frame around the
+  recorded region. Call `setContentProtection(true)` on all recorder windows to keep them
+  out of the recording. Keep `powerSaveBlocker` active.
+- The core module `src/main/ffmpeg.js` provides `ffmpegPath()` and `run(args, { onStderr })`, which returns a Promise.
+  The latter returns a Promise.
 
-### Native (`src/main/native/index.js`, `native/mac/`, `resources/bin/mac/`)
+### Native helper
 
-`src/main/native/index.js` exports (all async unless noted; must never throw at require time):
+`src/main/native/index.js` exports the functions below. They are asynchronous unless noted.
+The module must load without throwing. Its macOS implementation lives in `native/mac/` and
+`resources/bin/mac/`.
 
 ```js
 init()                         // start helpers lazily; safe to call many times
@@ -216,58 +252,87 @@ systemAudio.start(outPath) / .pause() / .resume() / .stop() → { path, startedA
 shutdown()
 ```
 
-- macOS: a Swift command-line helper (`native/mac/*.swift`, built by `native/mac/build.sh` into
-  a universal binary `resources/bin/mac/kadr-helper`, deployment target macOS 13) that runs as a
-  long-lived child process speaking JSON lines over stdin/stdout. Uses CGWindowList,
-  ScreenCaptureKit (`SCScreenshotManager` on 14+, `SCStream` audio), Vision (text, barcodes,
-  `VNGenerateForegroundInstanceMaskRequest` on 14+), CGEvent scroll.
-- Windows: an Electron `utilityProcess` running `src/main/native/win-worker.js` which uses
-  `koffi` (FFI, prebuilt) to call Win32: `EnumWindows`, `DwmGetWindowAttribute`
-  (extended frame bounds), `GetWindowThreadProcessId`, `SendInput` (wheel), optionally
-  `PrintWindow` for occluded window capture. Rects are physical pixels → convert to DIP in main
-  with `screen.screenToDipRect(null, rect)`. A crash of the utility process must not crash the app.
+- On macOS, `native/mac/build.sh` builds the Swift command-line helper from `native/mac/*.swift`
+  into the universal binary `resources/bin/mac/kadr-helper`. The deployment target is macOS 13.
+  The helper runs as a long-lived child process and exchanges JSON lines over standard input
+  and output. It uses CGWindowList, ScreenCaptureKit with `SCScreenshotManager` on macOS 14 and
+  later and `SCStream` for audio, Vision for text and barcodes and
+  `VNGenerateForegroundInstanceMaskRequest` on macOS 14 and later, and CGEvent for scrolling.
+- On Windows, an Electron `utilityProcess` runs `src/main/native/win-worker.js`. The worker uses
+  prebuilt `koffi` as its foreign function interface to call Win32 APIs. It calls `EnumWindows`,
+  `DwmGetWindowAttribute` for extended frame bounds, `GetWindowThreadProcessId`, and `SendInput`
+  for wheel events. It can also call `PrintWindow` to capture a covered window. The main process
+  converts rectangles from physical pixels to device-independent pixels with
+  `screen.screenToDipRect(null, rect)`. The app must keep running if the utility process crashes.
 
-## Persistence and renderer boundaries
+## Storage and renderer access
 
-- Save original images using `atomic-file.writeFileAtomic`; settings and library indexes keep two current atomic JSON copies (`.bak`). Malformed JSON is preserved as `.corrupt-*` before recovery.
-- Library edits clear OCR in memory and both index copies before replacing pixels. OCR results must match the current image revision. `library.flushForQuit()` waits for pending image writes and the final index before quitting, without starting or waiting for background OCR. Each quit retry consumes its bypass once so cancelled closes cannot skip future saves.
-- Main IPC validates the registered window, exact renderer URL, top frame and per-page channel catalog. The sandboxed preload embeds exact public channels; keep its catalog and `ipc-policy.json` aligned when adding an API.
-- File operations require a window-owned path grant from a native chooser, an actual dropped File verified in preload, or a main-process open/export. The generic bridge cannot grant a path or trash arbitrary files.
-- Permissions are limited to clipboard pages, recorder audio/capture pages, and video-only media in the scroller worker. Online translation always requires a native confirmation naming Google and the text disclosure.
-- `npm test` uses temporary synthetic files and mocked native/Electron interfaces, never real capture or system permissions.
+- Save original images with `atomic-file.writeFileAtomic`. Keep two current atomic JSON copies
+  of settings and the library index, with the second in `.bak`. Keep malformed JSON as
+  `.corrupt-*` before recovering.
+- Clear text recognition results from memory and both index copies before replacing library
+  pixels. Apply results only if they match the current image revision. Before quitting,
+  `library.flushForQuit()` waits for pending image writes and the final index write. It skips
+  starting or waiting for background text recognition. Each quit retry uses its bypass once.
+  This keeps canceled closes from skipping later saves.
+- The main process checks the registered window, exact renderer URL, top frame, and list of
+  channels allowed for the page. Keep the public channels in the sandboxed preload and
+  `ipc-policy.json` in sync when adding an API.
+- File operations need a path grant for the specific window. The grant comes from a native file
+  picker, a dropped File verified in preload, or an open or export in the main process.
+  The generic bridge cannot grant paths or move arbitrary files to the trash.
+- Grant clipboard permissions to clipboard pages, audio and capture permissions to recorder
+  pages, and video-only media access to the scrolling capture worker. Online translation
+  requires native confirmation that names Google and says what text will be sent.
+- `npm test` uses temporary synthetic files and mocks the native and Electron interfaces.
+  Real capture and system permissions require separate tests.
 
 ## Editor and library operation ordering
 
-- A source-image decode error displays an error page; never substitute a writable blank document.
-- Commit inline text before encoding/cache lookup. Identical concurrent encodes share one promise. Copy/save may clear dirty or close only when their exported revision is still current. File and library encodings use the same immutable canvas.
-- Any dirty editor confirms a close. Copying the current revision delivers a screenshot, so
-  Esc can close its editor. A file opened from disk keeps its dirty state after a copy.
-- Library replacement, deletion and retention removal share a per-item operation queue. A deletion queued during replacement must leave no resurrected image or thumbnail. Background OCR uses one pending timer and the latest queued revision per item.
-- Export stream-copy checks the selected audio track codec, including mixed-codec imported files.
+- Show an error page if the source image fails to decode. Do not open a blank editable document.
+- Commit inline text before encoding or checking the cache. Concurrent requests for the same
+  encoding share one promise. Copy or Save can clear the unsaved state or close the editor only
+  if the exported revision is still current. Encode files and library images from the same
+  immutable canvas.
+- Ask before closing an editor with unsaved changes. Copying the current revision delivers the
+  screenshot, so Esc can close its editor. A file opened from disk stays marked as unsaved
+  after a copy if it had unsaved changes.
+- Use one queue per library item for replacement, deletion, and removal under retention
+  settings. If deletion queues during replacement, remove the image and thumbnail after the
+  replacement finishes. Background text recognition keeps one pending timer and the
+  latest queued revision per item.
+- Before copying an audio stream during export, check the selected track's codec. Imported
+  files can contain tracks with different codecs.
+- Require explicit preparation of translation languages. After preparation succeeds, retry the
+  native in-image translation request once. Skip the interface check that prevents overlapping requests and reuse the text recognition result. Check the generation of settings responses and refresh model availability on focus.
 
-- Translation language preparation is explicit. In-image translation retries its native request once after successful preparation without re-entering the UI guard or repeating OCR. Settings responses use a generation check and refresh model availability on focus.
+## Requirements from the 2026-11-09 audit
 
-## Audit invariants (2026-11-09)
-
-- Automatic screenshot saves share a per-directory queue through `basics.saveBytes` so concurrent
-  windows cannot select the same output name before either atomic write finishes.
-- Library indexes accept only an item's own `id.png` and `id.thumb.jpg`. Startup reconciles orphan
-  PNGs even with a valid old index, and repairs missing/interrupted thumbnails. Redaction removes
-  the old thumbnail before committing new pixels; a failed thumbnail write cannot reveal old pixels.
-- Editor text and backdrop edits set dirty immediately. Copy/save share an ordering queue;
-  asynchronous pixel operations and conceal OCR check document/base revisions before applying.
-- Overlay/scroller lifecycle is session-owned. Window close, renderer loss, failed load and deadlines
-  release pending work. Known display IDs never fall back to a different display ID; legacy complete
-  source lists without IDs still use positional mapping for screenshot/recording compatibility.
-- Recorder teardown joins pending file/audio initialization before returning idle. Import/delete/export
-  reserve the video document before asynchronous work. Probe dimensions include right-angle rotation.
-- A failed probe or delivery is not evidence that a recording is disposable. Failed raw/audio/final
-  material is retained in `recordings-tmp`; ordinary intermediates are removed after successful full
-  delivery. Recovery does not yet reconstruct separate audio or expose a recovery manager, and
-  repeated failures can accumulate candidates requiring explicit review.
-- `minimatch@>=7 <11.0.1` is overridden to 11.0.1 for GHSA-g3hv-75wg-m249. Versions 3/5 retain their
-  callable API. Revisit this override when electron-builder's transitive constraints include the fix.
-- Optional diagnostic renderer run: `npx --no-install electron test/integration/editor-benchmark.cjs`.
-  It writes synthetic PNGs, UI screenshots and JSON under the OS temporary directory's
-  `kadr-audit-visuals` folder by default; an explicit output directory can be passed as an argument.
-  It uses one sample per size and is not a capture-latency or steady-state memory benchmark.
+- Queue automatic screenshot saves by directory through `basics.saveBytes`. This prevents
+  concurrent windows from choosing the same output name before an atomic write finishes.
+- The library index accepts only the item's own `id.png` and `id.thumb.jpg`. At startup, the
+  library reconciles unindexed PNGs even if the old index is valid. It also repairs missing
+  or incomplete thumbnails. Redaction removes the old thumbnail before it replaces the
+  pixels, so a failed thumbnail write cannot reveal old pixels.
+- Mark text input and backdrop changes as unsaved immediately. Use one queue for Copy and Save.
+  Check document and base image revisions before applying asynchronous pixel changes or text
+  recognition results used for redaction.
+- Tie the selection overlay and scrolling capture worker to their session. Release pending work
+  on close, renderer failure, load failure, or timeout. Reject fallback sources with a different
+  known display ID. For screenshots and recordings, use position in the list if a complete
+  older source list has no IDs.
+- Wait for pending file and audio setup before the recorder returns to idle. Reserve the video
+  document before asynchronous import, delete, or export work. When reading video dimensions,
+  account for right-angle rotation.
+- Keep raw, audio, and finished files in `recordings-tmp` if probing or delivery fails.
+  Remove ordinary intermediates after successful full delivery. This version has no automatic
+  recovery of separate audio and no recovery manager. Repeated failures can leave files that
+  need manual review.
+- Use the 11.0.1 override for `minimatch@>=7 <11.0.1` to address GHSA-g3hv-75wg-m249.
+  Versions 3 and 5 keep their callable APIs. Revisit the override when electron-builder's
+  transitive constraints include the fix.
+- To check the renderer, run `npx --no-install electron test/integration/editor-benchmark.cjs`.
+  It writes synthetic PNGs, screenshots of the interface, and JSON to the `kadr-audit-visuals`
+  folder in the operating system's temporary directory by default. You can specify another
+  output directory as an argument. The script takes one sample per size. Capture latency and
+  steady-state memory use require separate measurements.

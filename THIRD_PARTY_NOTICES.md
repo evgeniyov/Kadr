@@ -1,25 +1,25 @@
 # Third-party notices
 
-Kadr's code is distributed under the [MIT License](LICENSE). The components below retain their own licenses and copyright notices. The components present in a binary depend on the platform and installer format.
+Kadr's code uses the [MIT License](LICENSE). Bundled components keep their own licenses and copyright notices. The platform and installer format determine which components a build includes.
 
 ## Desktop runtime
 
 | Component | License and upstream source |
 | --- | --- |
 | Electron 44.11.5 | MIT, copyright Electron contributors and the other holders named in the [Electron license](https://github.com/electron/electron/blob/v44.11.5/LICENSE). The Electron distribution includes `LICENSE`. [Source](https://github.com/electron/electron/tree/v44.11.5) |
-| Chromium and Electron's bundled dependencies | Chromium uses a BSD-style license with additional licenses for its bundled code. Electron ships the detailed `LICENSES.chromium.html` for its exact build, including notices for Chromium, Node.js, V8 and other components. [Chromium source and license](https://chromium.googlesource.com/chromium/src/+/main/LICENSE) · [Electron distribution](https://github.com/electron/electron/releases/tag/v44.11.5) |
+| Chromium and Electron's bundled dependencies | Chromium uses a BSD-style license with additional licenses for its bundled code. Each Electron build includes its own `LICENSES.chromium.html` with notices for Chromium, Node.js, V8, and other components. [Chromium source and license](https://chromium.googlesource.com/chromium/src/+/main/LICENSE) · [Electron distribution](https://github.com/electron/electron/releases/tag/v44.11.5) |
 | jsQR 1.4.0 | Apache-2.0, jsQR contributors. [Source](https://github.com/cozmo/jsQR) · [Exact npm license](https://unpkg.com/jsqr@1.4.0/LICENSE) |
 | koffi and the platform-specific `@koromix/koffi-*` packages 3.3.1 | MIT, copyright 2026 Niels Martignène. The Windows build uses `@koromix/koffi-win32-x64`. [Source](https://github.com/Koromix/koffi) · [Exact npm license](https://unpkg.com/koffi@3.3.1/LICENSE.txt) |
 
 ## OCR
 
-Tesseract.js 7.0.0 and Tesseract.js Core 7.0.0 are distributed under Apache-2.0. The copyright holders are the Tesseract.js and Tesseract contributors. [Tesseract.js source](https://github.com/naptha/tesseract.js/tree/v7.0.0) · [Core source and build scripts](https://github.com/naptha/tesseract.js-core/tree/v7.0.0) · [Apache-2.0 text](docs/licenses/Apache-2.0.txt)
+Tesseract.js 7.0.0 and Tesseract.js Core 7.0.0 use Apache-2.0. The copyright holders are the Tesseract.js and Tesseract contributors. [Tesseract.js source](https://github.com/naptha/tesseract.js/tree/v7.0.0) · [Core source and build scripts](https://github.com/naptha/tesseract.js-core/tree/v7.0.0) · [Apache-2.0 text](docs/licenses/Apache-2.0.txt)
 
-The English and Russian models in `resources/tessdata/` come from the Tesseract project, as distributed by the Tesseract.js project in `4.0.0_best_int` of `@tesseract.js-data/eng@1.0.0` and `@tesseract.js-data/rus@1.0.0`. The upstream trained data is Apache-2.0. Credit goes to the Tesseract contributors and the Tesseract.js maintainers who package the models. [Model source and license](https://github.com/naptha/tessdata/blob/gh-pages/LICENSE) · [English npm package](https://www.npmjs.com/package/@tesseract.js-data/eng/v/1.0.0) · [Russian npm package](https://www.npmjs.com/package/@tesseract.js-data/rus/v/1.0.0) · [Apache-2.0 text](docs/licenses/Apache-2.0.txt)
+The English and Russian models in `resources/tessdata/` come from Tesseract. The Tesseract.js maintainers package them under `4.0.0_best_int` in `@tesseract.js-data/eng@1.0.0` and `@tesseract.js-data/rus@1.0.0`. The trained data uses Apache-2.0. Credit goes to the Tesseract contributors and the Tesseract.js maintainers. [Model source and license](https://github.com/naptha/tessdata/blob/gh-pages/LICENSE) · [English npm package](https://www.npmjs.com/package/@tesseract.js-data/eng/v/1.0.0) · [Russian npm package](https://www.npmjs.com/package/@tesseract.js-data/rus/v/1.0.0) · [Apache-2.0 text](docs/licenses/Apache-2.0.txt)
 
 ### Code included in the WebAssembly OCR builds
 
-The source links below identify the revisions pinned by [Tesseract.js Core 7.0.0](https://github.com/naptha/tesseract.js-core/tree/v7.0.0/third_party). The WASM builds include the OCR engine and image-processing code. Original attribution and license terms are in the linked notices.
+The source links below identify the revisions pinned by [Tesseract.js Core 7.0.0](https://github.com/naptha/tesseract.js-core/tree/v7.0.0/third_party). The WebAssembly builds include the text recognition engine and image-processing code. Original attribution and license terms are in the linked notices.
 
 | Component | License and notice | Pinned source |
 | --- | --- | --- |
@@ -36,7 +36,7 @@ The source links below identify the revisions pinned by [Tesseract.js Core 7.0.0
 
 ### Transitive npm dependencies
 
-This list covers the production dependencies that remain after replacing `ffmpeg-static` with the standalone FFmpeg builds described below. Platform-specific koffi binaries share the koffi license above. Keep the license and attribution files from the exact npm tarballs with any copies distributed in the application.
+Kadr replaced `ffmpeg-static` with standalone FFmpeg builds. The table lists the remaining transitive production dependencies. Platform-specific koffi binaries use the same license as koffi. When you distribute copies of these packages with the app, include the license and attribution files from their exact npm tarballs.
 
 | Package | Version | License | Source |
 | --- | --- | --- | --- |
@@ -54,8 +54,8 @@ This list covers the production dependencies that remain after replacing `ffmpeg
 
 ## FFmpeg
 
-Kadr's public packages use free FFmpeg builds configured without `--enable-nonfree`. See [`resources/licenses/ffmpeg/`](resources/licenses/ffmpeg/) for the distribution's applicable licenses, build configuration and corresponding source information. [FFmpeg source](https://github.com/FFmpeg/FFmpeg) · [FFmpeg licensing](https://ffmpeg.org/legal.html)
+Kadr's public packages use free FFmpeg builds configured without `--enable-nonfree`. The licenses, build configuration, and source details are in [`resources/licenses/ffmpeg/`](resources/licenses/ffmpeg/). [FFmpeg source](https://github.com/FFmpeg/FFmpeg) · [FFmpeg licensing](https://ffmpeg.org/legal.html)
 
 ## Windows installers
 
-The Windows `.msi` is built by electron-builder with the WiX Toolset. It uses standard Windows Installer features and embeds no third-party installer plug-ins. The `.zip` contains the application files only. [electron-builder](https://github.com/electron-userland/electron-builder) · [WiX Toolset](https://github.com/wixtoolset/wix)
+electron-builder uses the WiX Toolset to build the Windows `.msi`. The installer uses standard Windows Installer functions and includes no third-party installer plug-ins. The `.zip` contains only the app files. [electron-builder](https://github.com/electron-userland/electron-builder) · [WiX Toolset](https://github.com/wixtoolset/wix)

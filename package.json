@@ -2,7 +2,7 @@
   "name": "kadr",
   "productName": "Kadr",
   "version": "1.0.16",
-  "description": "Kadr — скриншоты, аннотации, OCR, скролл-захват и запись экрана для macOS и Windows",
+  "description": "Kadr takes screenshots, including scrolling screenshots, annotates images, recognizes text, and records the screen on macOS and Windows.",
   "main": "src/main/index.js",
   "author": "Kadr",
   "license": "MIT",

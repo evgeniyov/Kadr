@@ -1,87 +1,67 @@
-# Изменения Kadr
+# Kadr changelog
 
-## 1.0.16 — 22 ноября 2026
+## 1.0.16, 22 November 2026
 
-- Первый публичный выпуск. Исходный код открыт под лицензией MIT.
-- В комплекте свободная сборка FFmpeg 8.1.3 без `--enable-nonfree`. Она собрана из исходников, её лицензии и конфигурация лежат внутри приложения, архивы исходников приложены к релизу.
-- Windows выпускается как установщик MSI и ZIP-архив.
-- В приложение входят лицензия MIT и уведомления о сторонних компонентах. Тесты, документация и служебные скрипты в установщики не попадают.
-- Сборки для macOS подписаны ad-hoc. После обновления macOS может снова попросить разрешение на запись экрана.
+- This is the first public release. The source code uses the MIT License.
+- This release includes a free build of FFmpeg 8.1.3 compiled from source without `--enable-nonfree`. The app includes the FFmpeg licenses and build configuration. The release includes the source archives.
+- The Windows release comes as an MSI installer and a ZIP archive.
+- The app includes the MIT License and third-party notices. The installers omit tests, documentation, and utility scripts.
+- The macOS builds use ad hoc signing. After an update, macOS may ask for screen recording permission again.
 
-## 1.0.15 — 20 ноября 2026
+## 1.0.15, 20 November 2026
 
-- Клик по подсвеченному окну в режиме выделения области сохраняет подсказки и контекстные меню. Kadr вырезает окно из замороженного кадра и расширяет рамку на всплывающие окна того же приложения, если они выходят за край. Подсветка заранее показывает итоговую рамку.
-- В режиме «Окно» обычное окно по-прежнему снимается с тенью и прозрачностью. Если над ним открыто меню или подсказка, берётся замороженный кадр.
-- Сборки для macOS подписаны постоянным ключом вместо ad-hoc. После следующих обновлений macOS не будет снова запрашивать разрешение на запись экрана. Для перехода с ad-hoc-версии разрешение нужно выдать ещё один раз.
+- In region selection, click a highlighted window to capture it with its tooltips and context menus. Kadr crops the window from a frozen frame and extends the selection to include same-app pop-ups outside the window. The highlight shows the area Kadr will capture.
+- Window mode still captures an ordinary window with its shadow and transparency. If a menu or tooltip is open over it, Kadr uses the frozen frame.
+- The macOS builds use a persistent signing key. macOS will keep screen recording permission across subsequent updates. If you switch from an ad hoc build, grant permission once more.
 
-## 1.0.14 — 20 ноября 2026
+## 1.0.14, 20 November 2026
 
-- Подсказки, подсветка при наведении, всплывающие панели и открытые меню теперь попадают в снимок области, окна, OCR, перевода и пипетки на macOS. Kadr делает кадр до появления оверлея выделения. Оверлей появляется примерно на 150 мс позже.
-- Устаревшее окно редактора больше не перезаписывает снимок в библиотеке старыми пикселями. Конфликтующее сохранение становится отдельной копией и не вытесняет оригинал.
-- Редактор снимка или элемента библиотеки спрашивает перед закрытием, если остались несохранённые правки. Повторное закрытие во время сохранения не запускает второе сохранение.
-- Сброс настроек сразу перерегистрирует горячие клавиши, значок в трее и автозапуск.
-- Резервный захват через `screencapture` удаляет уже записанные кадры, если не удалось снять другой дисплей.
-- Electron обновлён до 44.11.5, действия GitHub Actions переведены на Node 24.
+- On macOS, region capture, window capture, text recognition, translation, and the color picker now include tooltips, hover highlights, pop-up panels, and open menus. Kadr captures the screen before it shows the selection overlay. The overlay appears about 150 ms later.
+- If an editor tries to save an older revision of a library image, Kadr saves a separate copy and keeps the original.
+- The editor asks before closing a capture or library item with unsaved changes. A second close request during a save does not start another save.
+- Resetting settings applies the defaults for keyboard shortcuts, the tray icon, and launch at login immediately.
+- If fallback capture with `screencapture` fails on one display, Kadr deletes frames it already saved from other displays.
+- Electron now uses version 44.11.5. GitHub Actions now use Node 24.
 
-## 1.0.13 — 12 ноября 2026
+## 1.0.13, 12 November 2026
 
-- Подготовка к захвату на macOS обновляет список окон и дисплеев без пробного снимка. Это устраняет пересечение пробного и реального захватов.
-- На macOS 26 и новее помощник использует API одиночных снимков ScreenCaptureKit для захвата дисплея.
-- Если ScreenCaptureKit отказывает в захвате, помощник отдельно проверяет разрешение записи экрана и точнее сообщает причину ошибки.
-- Добавлена проверка последовательных снимков при одновременном запуске подготовки и захвата.
+- On macOS, capture preparation refreshes the list of windows and displays without taking a test screenshot. This prevents the test screenshot from overlapping the requested capture.
+- On macOS 26 and later, the helper uses the ScreenCaptureKit single-screenshot API to capture displays.
+- If ScreenCaptureKit refuses a capture, the helper checks screen recording permission separately so it can report the cause more accurately.
+- A regression test checks consecutive screenshots when preparation and capture start at the same time.
 
-## 1.0.12 — 12 ноября 2026
+## 1.0.12, 12 November 2026
 
-- Исправлены тесты путей на Windows и тест экспорта повёрнутого видео. Тест теперь явно задаёт матрицу поворота через FFmpeg.
-- Для сборки нативного помощника в GitHub Actions используется Xcode 26.3 на обеих архитектурах macOS.
-- Подготовлены сборки для macOS на Apple Silicon и Intel, а также установщик и portable-версия для Windows x64.
+- Fixed the Windows path tests and the rotated video export test. The video test now sets the rotation matrix through FFmpeg.
+- GitHub Actions uses Xcode 26.3 to build the native helper for both macOS architectures.
+- This release has macOS builds for Apple Silicon and Intel, plus an installer and a portable build for Windows x64.
 
-## 1.0.11 — 12 ноября 2026
+## 1.0.11, 12 November 2026
 
-- Скрытые области остаются закрытыми в обоих кадрах GIF «до и после».
-- Параллельные видеоэкспорты сохраняются в разные файлы. Уже существующие копии сохраняются.
-- Ручное копирование после захвата отменяет ожидающее автокопирование исходного снимка.
-- Исправлены коллизии имён при параллельном сохранении, восстановление библиотеки после
-  прерванной записи индекса и старые миниатюры после ошибки редактирования.
-- Подложка и ввод текста сразу отмечают документ несохранённым; сохранение работает прямо
-  во время набора. Асинхронные OCR/удаление фона не применяют устаревший результат.
-  Copy/Save упорядочены, кадры GIF относятся к одной ревизии.
-- Закрытие и падение окон захвата освобождают сессию. Скролл-запросы ограничены по времени,
-  лимит высоты соблюдается, пропавший экран не заменяется источником с другим известным ID.
-- Отмена подготовки записи освобождает поздние ресурсы. Исправлены размеры повёрнутого видео
-  и гонки импорта/удаления/экспорта. Горячие клавиши восстанавливаются после сбоя настроек.
-- Неудачное чтение или сохранение записи больше не удаляет raw, отдельный звук и готовый
-  промежуточный файл. После успешного сохранения обычная очистка сохраняется.
-- Построение слишком сложного контура выделения прекращается при достижении лимита.
-- Обновлены Electron в ветке 44 и инструменты сборки; исправленная версия minimatch применяется
-  только к уязвимым веткам 7–10, сохраняя старые API 3/5 у зависимых инструментов.
-- Добавлены регрессионные тесты и воспроизводимая синтетическая проверка редактора 1080p/4K.
+- Hidden areas stay covered in both frames of a before-and-after GIF.
+- Concurrent video exports save to separate files and preserve existing copies.
+- Copying a capture manually cancels any pending automatic copy of the original.
+- Fixed filename collisions during concurrent saves, library recovery after an interrupted index write, and stale thumbnails after a failed edit.
+- The editor marks a document as unsaved as soon as you change the backdrop or type. You can save while typing. Text recognition and background removal discard outdated results. Copy and Save run in order. Both GIF frames use the same revision.
+- Closing or crashing a capture window releases its session. Scrolling requests time out, and scrolling captures respect the height limit. If a display disappears, Kadr will skip sources with a different known display ID.
+- Canceling recording setup releases resources that arrive after cancellation. Fixed rotated video dimensions and races between import, delete, and export. Keyboard shortcuts recover after a settings failure.
+- Failed reads or saves preserve the raw recording, separate audio, and the completed intermediate file. Kadr still cleans up after a successful save.
+- The editor stops building a selection outline when it reaches the complexity limit.
+- Updated Electron within version 44 and updated the build tools. The minimatch fix applies only to vulnerable versions 7 through 10. Dependent tools still use the version 3 and 5 APIs they require.
+- Added regression tests and a repeatable editor check with synthetic 1080p and 4K images.
 
 ## 1.0.10
 
-Исправления по результатам проверки текущего проекта. Включает ранее не отправленные
-в Git изменения локальной версии 1.0.9.
+This version includes fixes from the project audit and local 1.0.9 changes that had yet to reach Git.
 
-- Нажатие на значок приложения возвращает открытый редактор или восстанавливает свёрнутое
-  окно; настройки больше не создаются поверх существующего документа.
-- Подготовленный редактор получает пиксели снимка и при поздней загрузке окна, до появления
-  PNG на диске. Ошибка загрузки изображения показывается явно, без подмены пустым холстом.
-- Сохранение и копирование используют согласованный снимок документа и не помечают более
-  свежие правки сохранёнными. Результат перевода не применяется после изменения изображения.
-- Отмена видеоэкспорта блокирует последующую замену файла; повторные задания сериализуются.
-  Выбор аудиодорожки сохраняется, учитывается её кодек. Аудиоэкспорт с выключенными
-  источниками звука не возвращает отключённый микс.
-- Настройки, изображения и индекс библиотеки сохраняются через временный файл и атомарную
-  замену. Индексы имеют резервную копию; закрытые после редактирования фрагменты текста
-  не возвращаются в поиск из запоздавшего OCR. При выходе завершается запись новых снимков
-  и индекса, без ожидания фонового OCR; отмена выхода не отключает последующие сохранения.
-- IPC ограничен страницей и главным фреймом; доступ к файлам привязан к выбору пользователя
-  и конкретному окну. Скролл-воркер сохраняет необходимое разрешение на видеопоток.
-- Системные разрешения не сбрасываются при запуске и обновлении; отправка распознанного
-  текста в онлайн-переводчик требует явного подтверждения.
-- В macOS-пакет включён офлайн OCR для работы при отказе системного распознавания.
-- Исправлен штатный скрипт сборки universal Swift helper.
+- Clicking the app icon brings an open editor forward or restores a minimized window. Kadr no longer opens settings over an existing document.
+- The preloaded editor gets the capture pixels even if its window loads late, before the PNG appears on disk. If an image fails to load, the editor shows an error instead of a blank canvas.
+- Save and Copy use a consistent document snapshot and leave newer edits marked as unsaved. The editor discards translation results if the image changes.
+- Canceling a video export prevents subsequent file replacement. Kadr runs repeated export jobs in order, keeps the selected audio track, and checks its codec. Audio exports respect disabled sound sources.
+- Kadr writes settings, images, and the library index to temporary files before replacing the originals atomically. The index has a backup. Late text recognition results cannot return redacted text to search. When you quit, Kadr finishes writing new captures and the index without waiting for background text recognition. If you cancel quitting, later saves still work.
+- The main process restricts interprocess communication by page and to the main frame. File access requires a choice by the user and applies to a specific window. The scrolling capture worker keeps the permission it needs for the video stream.
+- Launching or updating Kadr preserves system permissions. Sending recognized text to the online translator requires explicit confirmation.
+- The macOS package includes offline text recognition for use when the system service fails.
+- Fixed the standard build script for the universal Swift helper.
 
-Проверки: `npm test`, `npm run test:electron` и локальная сборка macOS. Тесты используют
-искусственные изображения/ролики и отдельный временный профиль. Реальные Windows-сценарии,
-захват на нескольких физических мониторах и системные разрешения не проверяются этими тестами.
+The checks included `npm test`, `npm run test:electron`, and a local macOS build. The tests use synthetic images and videos in a separate temporary profile. Testing on Windows, capture across multiple physical displays, and system permissions require separate checks.
