@@ -24,8 +24,20 @@ jobs:
       - run: npm ci
       - run: npm test
 
+  version:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - name: Tag matches package version and CHANGELOG
+        run: node scripts/release-notes.js "$GITHUB_REF_NAME" > /dev/null
+
   windows:
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    if: ${{ !cancelled() && !failure() && (github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')) }}
+    needs: [version]
     runs-on: windows-2025
     env:
       GIT_CONFIG_COUNT: '1'
@@ -64,7 +76,8 @@ jobs:
             dist/ffmpeg-source-win32-x64.tar.gz
 
   macos:
-    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    if: ${{ !cancelled() && !failure() && (github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')) }}
+    needs: [version]
     strategy:
       fail-fast: false
       matrix:
