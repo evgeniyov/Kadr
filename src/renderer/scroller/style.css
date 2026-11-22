@@ -1,0 +1,65 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+.frame {
+  position: fixed;
+  inset: 0;
+  border: 2px dashed rgba(10, 132, 255, 0.95);
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.6);
+  animation: march 1s linear infinite;
+}
+@keyframes march {
+  50% {
+    border-color: rgba(10, 132, 255, 0.55);
+  }
+}
+.spanel {
+  position: fixed;
+  inset: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px 12px;
+}
+.head {
+  padding: 2px 0;
+  font-size: 13px;
+}
+#hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.thumb {
+  flex: 1;
+  min-height: 60px;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  border: 1px solid var(--border);
+}
+#thumb {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+.progress {
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  min-height: 15px;
+}
+.buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+.buttons .btn {
+  flex: 1;
+}

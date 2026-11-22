@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' kadr:; img-src 'self' kadr: data: blob:; style-src 'self' 'unsafe-inline'" />
+    <link rel="stylesheet" href="../../shared/ui.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body class="transparent">
+    <div class="card-wrap">
+      <div id="card" class="pcard checker">
+        <img id="img" alt="" />
+        <div class="actions">
+          <button class="pbtn" id="edit" data-i18n-tip="preview.edit" data-tip-pos="top"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4z" /><path d="M13.5 6.5l4 4" /></svg></button>
+          <button class="pbtn" id="copy" data-i18n-tip="preview.copy" data-tip-pos="top"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2" /><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" /></svg></button>
+          <button class="pbtn" id="save" data-i18n-tip="preview.save" data-tip-pos="top"><svg viewBox="0 0 24 24"><path d="M12 4v11" /><path d="M7 10l5 5 5-5" /><path d="M5 20h14" /></svg></button>
+          <button class="pbtn" id="pin" data-i18n-tip="preview.pin" data-tip-pos="top"><svg viewBox="0 0 24 24"><path d="M9 4h6l-1 5 3 3v2H7v-2l3-3-1-5z" /><path d="M12 14v6" /></svg></button>
+        </div>
+        <button class="close" id="close" data-i18n-tip="preview.close"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17" /></svg></button>
+        <div class="bar"><i id="progress"></i></div>
+      </div>
+    </div>
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>

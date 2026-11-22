@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' kadr:; img-src 'self' kadr: data: blob:; style-src 'self' 'unsafe-inline'" />
+    <link rel="stylesheet" href="../../shared/ui.css" />
+    <link rel="stylesheet" href="./style.css" />
+    <title>Kadr</title>
+  </head>
+  <body>
+    <header class="drag">
+      <h1 data-i18n="library.title"></h1>
+      <span id="count" class="faint"></span>
+      <div class="spacer"></div>
+      <input id="search" class="input no-drag" type="search" data-i18n-placeholder="library.search" />
+    </header>
+    <main id="grid"></main>
+    <div id="empty" class="empty hidden">
+      <svg viewBox="0 0 24 24"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2" /><circle cx="12" cy="12" r="3" /></svg>
+      <p id="empty-text"></p>
+    </div>
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>

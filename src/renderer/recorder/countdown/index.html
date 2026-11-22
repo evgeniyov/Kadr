@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' kadr:; style-src 'self' 'unsafe-inline'" />
+    <title>Kadr</title>
+    <link rel="stylesheet" href="../../../shared/ui.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body class="transparent">
+    <div class="cd" id="cd">
+      <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
+        <circle class="track" cx="100" cy="100" r="92" />
+        <circle class="progress" id="progress" cx="100" cy="100" r="92" />
+      </svg>
+      <span class="num" id="num"></span>
+      <span class="hint" data-i18n="recorder.countdown.hint"></span>
+    </div>
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>

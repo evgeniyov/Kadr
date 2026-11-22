@@ -1,0 +1,317 @@
+{
+  "settings": {
+    "invoke": [
+      "app:choose-folder",
+      "app:confirm",
+      "app:hotkey-status",
+      "app:locale",
+      "app:open-library",
+      "app:open-path",
+      "app:permissions",
+      "app:request-permission",
+      "app:suspend-hotkeys",
+      "app:version",
+      "library:clear",
+      "native:capabilities",
+      "native:prepare-translation",
+      "native:translation-status",
+      "settings:get",
+      "settings:reset",
+      "settings:set",
+      "win:close",
+      "win:params"
+    ],
+    "send": [],
+    "on": [
+      "settings:changed",
+      "settings:tab"
+    ],
+    "internal": []
+  },
+  "pin": {
+    "invoke": [
+      "app:locale",
+      "pin:copy",
+      "pin:edit",
+      "pin:menu",
+      "pin:move-by",
+      "pin:opacity-by",
+      "pin:reset-size",
+      "pin:save",
+      "pin:zoom",
+      "settings:get",
+      "win:close",
+      "win:params"
+    ],
+    "send": [],
+    "on": [
+      "settings:changed"
+    ],
+    "internal": []
+  },
+  "library": {
+    "invoke": [
+      "app:locale",
+      "library:copy",
+      "library:delete",
+      "library:list",
+      "library:open",
+      "library:pin",
+      "library:reveal",
+      "settings:get",
+      "win:close",
+      "win:params"
+    ],
+    "send": [
+      "library:start-drag"
+    ],
+    "on": [
+      "library:changed",
+      "settings:changed"
+    ],
+    "internal": []
+  },
+  "recorder/panel": {
+    "invoke": [
+      "app:locale",
+      "app:permissions",
+      "app:request-permission",
+      "recorder:open-privacy",
+      "recorder:panel-init",
+      "recorder:request-screen-access",
+      "recorder:select-region",
+      "recorder:sources",
+      "recorder:start",
+      "settings:get",
+      "settings:set",
+      "win:close",
+      "win:params"
+    ],
+    "send": [],
+    "on": [
+      "recorder:panel-mode",
+      "settings:changed"
+    ],
+    "internal": []
+  },
+  "recorder/countdown": {
+    "invoke": [
+      "app:locale",
+      "settings:get",
+      "win:close",
+      "win:params"
+    ],
+    "send": [],
+    "on": [
+      "recorder:countdown-go",
+      "settings:changed"
+    ],
+    "internal": []
+  },
+  "recorder/frame": {
+    "invoke": [
+      "app:locale",
+      "recorder:get-state",
+      "settings:get",
+      "win:close",
+      "win:params"
+    ],
+    "send": [],
+    "on": [
+      "recorder:state",
+      "settings:changed"
+    ],
+    "internal": []
+  },
+  "recorder/controls": {
+    "invoke": [
+      "app:locale",
+      "recorder:control",
+      "recorder:get-state",
+      "settings:get",
+      "win:close",
+      "win:params",
+      "win:set-ignore-mouse"
+    ],
+    "send": [],
+    "on": [
+      "recorder:level",
+      "recorder:state",
+      "settings:changed"
+    ],
+    "internal": []
+  },
+  "recorder/worker": {
+    "invoke": [
+      "app:locale",
+      "recorder:chunk",
+      "recorder:stem-chunk",
+      "recorder:worker-event",
+      "settings:get",
+      "win:close",
+      "win:params"
+    ],
+    "send": [],
+    "on": [
+      "recorder:cmd",
+      "settings:changed"
+    ],
+    "internal": []
+  },
+  "recorder/region-stub": {
+    "invoke": [
+      "app:locale",
+      "recorder:stub-done",
+      "settings:get",
+      "win:close",
+      "win:params"
+    ],
+    "send": [],
+    "on": [
+      "settings:changed"
+    ],
+    "internal": []
+  },
+  "recorder/editor": {
+    "invoke": [
+      "app:confirm",
+      "app:locale",
+      "app:open-path",
+      "app:reveal",
+      "clipboard:write-text",
+      "recorder:delete",
+      "recorder:editor-info",
+      "recorder:editor-open",
+      "recorder:export",
+      "recorder:export-cancel",
+      "recorder:file-exists",
+      "recorder:open-editor",
+      "recorder:video-url",
+      "settings:get",
+      "win:close",
+      "win:params"
+    ],
+    "send": [
+      "image:start-drag"
+    ],
+    "on": [
+      "recorder:export-progress",
+      "settings:changed"
+    ],
+    "internal": [
+      "app:grant-file"
+    ]
+  },
+  "preview": {
+    "invoke": [
+      "app:locale",
+      "preview:copy",
+      "preview:edit",
+      "preview:pin",
+      "preview:save",
+      "settings:get",
+      "win:close",
+      "win:params"
+    ],
+    "send": [
+      "preview:start-drag"
+    ],
+    "on": [
+      "settings:changed"
+    ],
+    "internal": []
+  },
+  "scroller": {
+    "invoke": [
+      "app:locale",
+      "scroll:cancel",
+      "scroll:finish",
+      "scroll:start-auto",
+      "settings:get",
+      "win:close",
+      "win:params"
+    ],
+    "send": [
+      "scroll:reply"
+    ],
+    "on": [
+      "scroll:finish",
+      "scroll:grab",
+      "scroll:init",
+      "scroll:message",
+      "scroll:progress",
+      "scroll:ready",
+      "settings:changed"
+    ],
+    "internal": []
+  },
+  "overlay": {
+    "invoke": [
+      "app:locale",
+      "overlay:cancel",
+      "overlay:copy-color",
+      "overlay:done",
+      "overlay:frozen",
+      "overlay:ready",
+      "settings:get",
+      "win:close",
+      "win:params"
+    ],
+    "send": [],
+    "on": [
+      "overlay:image",
+      "overlay:reset",
+      "overlay:start",
+      "overlay:windows",
+      "settings:changed"
+    ],
+    "internal": []
+  },
+  "editor": {
+    "invoke": [
+      "app:choose-file",
+      "app:confirm",
+      "app:locale",
+      "app:open-external",
+      "capture:start",
+      "clipboard:read-image",
+      "clipboard:read-text",
+      "clipboard:write-image",
+      "clipboard:write-text",
+      "editor:close-save-finished",
+      "editor:dirty",
+      "editor:export-gif",
+      "editor:import-image",
+      "editor:ready",
+      "editor:save-original",
+      "image:open-with-default",
+      "image:save",
+      "library:update-image",
+      "native:capabilities",
+      "native:ocr",
+      "native:prepare-translation",
+      "native:remove-bg",
+      "native:translate",
+      "native:translate-list",
+      "native:web-translate",
+      "pin:create",
+      "settings:get",
+      "settings:set",
+      "win:close",
+      "win:focus",
+      "win:hide",
+      "win:params",
+      "win:show"
+    ],
+    "send": [
+      "image:start-drag"
+    ],
+    "on": [
+      "editor:save-and-close",
+      "settings:changed"
+    ],
+    "internal": [
+      "app:grant-file"
+    ]
+  }
+}

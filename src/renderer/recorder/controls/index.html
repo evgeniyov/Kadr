@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' kadr:; style-src 'self' 'unsafe-inline'" />
+    <title>Kadr</title>
+    <link rel="stylesheet" href="../../../shared/ui.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body class="transparent">
+    <div class="pill drag" id="pill">
+      <div class="view main" id="main">
+        <div class="time"><span class="led" id="led"></span><span id="timer">0:00</span></div>
+        <span class="divider"></span>
+        <button class="cbtn no-drag" id="pause" data-tip-pos="top"></button>
+        <button class="cbtn stop no-drag" id="stop" data-tip-pos="top"></button>
+        <span class="divider"></span>
+        <button class="cbtn mic no-drag" id="mic" data-tip-pos="top"></button>
+        <button class="cbtn no-drag" id="discard" data-tip-pos="top"></button>
+        <span class="grip" id="grip"></span>
+      </div>
+      <div class="view confirm hidden" id="confirm">
+        <span class="q" data-i18n="recorder.controls.discardConfirm"></span>
+        <button class="pbtn danger no-drag" id="discard-yes" data-i18n="recorder.controls.discardYes"></button>
+        <button class="pbtn no-drag" id="discard-no" data-i18n="recorder.controls.discardNo"></button>
+      </div>
+      <div class="view saving hidden" id="saving">
+        <span class="spin"></span><span data-i18n="recorder.controls.saving"></span>
+      </div>
+    </div>
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>

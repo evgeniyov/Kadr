@@ -1,0 +1,6 @@
+/* The worker window is never shown. */
+html,
+body {
+  margin: 0;
+  background: #000;
+}

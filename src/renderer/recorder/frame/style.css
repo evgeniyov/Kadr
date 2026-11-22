@@ -1,0 +1,44 @@
+/* The window is FRAME_PAD (5 DIP) larger than the region on every side; the border is
+   drawn in the outer 3.5 px, so the recorded area never contains any of it. */
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+.ants {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.ants rect {
+  x: 1.75px;
+  y: 1.75px;
+  width: calc(100% - 3.5px);
+  height: calc(100% - 3.5px);
+  rx: 3px;
+  fill: none;
+}
+.halo {
+  stroke: rgba(0, 0, 0, 0.3);
+  stroke-width: 3.5px;
+}
+.dash {
+  stroke: #ff3b30;
+  stroke-width: 2px;
+  stroke-dasharray: 9 6;
+  animation: march 0.9s linear infinite;
+}
+body.paused .dash {
+  stroke: #ff9f0a;
+  animation-play-state: paused;
+}
+@keyframes march {
+  to {
+    stroke-dashoffset: -15;
+  }
+}

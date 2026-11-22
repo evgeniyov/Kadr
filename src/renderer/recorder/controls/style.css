@@ -1,0 +1,229 @@
+/* Floating recording controls: a dark HUD pill (same look in light and dark themes). */
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 10px;
+}
+
+.pill {
+  --level: 0;
+  height: 44px;
+  border-radius: 22px;
+  background: rgba(24, 24, 27, 0.9);
+  backdrop-filter: blur(18px) saturate(160%);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32), 0 0 0 0.5px rgba(255, 255, 255, 0.14) inset, 0 0 0 0.5px rgba(0, 0, 0, 0.5);
+  color: #f2f2f7;
+  display: flex;
+  align-items: center;
+  padding: 0 6px 0 14px;
+  animation: pill-in 0.2s ease-out both;
+}
+@keyframes pill-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+}
+.view {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 100%;
+}
+
+.time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 64px;
+  font-size: 14px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
+}
+.led {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--record);
+  box-shadow: 0 0 0 3px rgba(255, 59, 48, 0.25);
+  animation: blink 1.2s ease-in-out infinite;
+}
+@keyframes blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+body.paused .led {
+  background: var(--warning);
+  box-shadow: 0 0 0 3px rgba(255, 159, 10, 0.25);
+  animation: none;
+}
+body.paused #timer {
+  color: var(--warning);
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.14);
+  margin: 0 6px;
+}
+
+.cbtn {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 17px;
+  border: none;
+  background: transparent;
+  color: #f2f2f7;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  flex: 0 0 auto;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.cbtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+.cbtn:active {
+  background: rgba(255, 255, 255, 0.2);
+}
+.cbtn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.cbtn.stop {
+  color: #fff;
+}
+.cbtn.stop .icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--record);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.cbtn.stop svg {
+  width: 13px;
+  height: 13px;
+}
+.cbtn.stop:hover {
+  background: rgba(255, 59, 48, 0.2);
+}
+/* mic activity: a soft green glow that follows the input level */
+.cbtn.mic::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  border-radius: 50%;
+  background: #30d158;
+  opacity: calc(var(--level) * 0.55);
+  transform: scale(calc(0.6 + var(--level) * 0.4));
+  transition: opacity 0.1s, transform 0.1s;
+}
+.cbtn.mic .icon {
+  position: relative;
+}
+.cbtn.mic.muted {
+  color: var(--record);
+}
+.cbtn.mic.muted::before,
+.cbtn.mic[disabled]::before {
+  display: none;
+}
+.cbtn[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+.cbtn[disabled]:hover {
+  background: transparent;
+}
+
+.grip {
+  width: 18px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.35);
+  margin-left: 2px;
+}
+.grip svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* tooltips live in the transparent space above the pill */
+.cbtn[data-tip]:hover::after {
+  font-weight: 500;
+}
+
+.confirm {
+  gap: 8px;
+  padding-right: 4px;
+}
+.q {
+  font-weight: 600;
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.pbtn {
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 15px;
+  border: none;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+}
+.pbtn:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.pbtn.danger {
+  background: var(--record);
+}
+.pbtn.danger:hover {
+  background: color-mix(in srgb, var(--record) 85%, #000);
+}
+
+.saving {
+  gap: 10px;
+  padding: 0 12px 0 0;
+  font-weight: 500;
+}
+.spin {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.icon {
+  display: inline-flex;
+}

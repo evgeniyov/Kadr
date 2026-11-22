@@ -1,0 +1,142 @@
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+header {
+  height: 52px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+}
+html[data-platform='darwin'] header {
+  padding-left: 84px;
+}
+header h1 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+}
+.spacer {
+  flex: 1;
+}
+#search {
+  width: 280px;
+}
+main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 16px 24px;
+}
+.day {
+  margin: 16px 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.tile {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: box-shadow 0.12s, transform 0.12s;
+}
+.tile:hover {
+  box-shadow: var(--shadow);
+}
+.tile.selected {
+  outline: 2.5px solid var(--accent);
+  outline-offset: 1px;
+}
+.thumb {
+  height: 140px;
+  background: var(--bg-sunken);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.meta {
+  padding: 6px 9px 7px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--text-2);
+  border-top: 1px solid var(--border);
+}
+.meta .app {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tools {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.tile:hover .tools {
+  opacity: 1;
+}
+.tools button {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: none;
+  background: rgba(20, 20, 22, 0.72);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.tools button:hover {
+  background: rgba(20, 20, 22, 0.9);
+}
+.tools svg {
+  width: 15px;
+  height: 15px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.empty {
+  position: absolute;
+  inset: 52px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  pointer-events: none;
+}
+.empty svg {
+  width: 56px;
+  height: 56px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.3;
+}

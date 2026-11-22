@@ -1,0 +1,219 @@
+{
+  "name": "kadr",
+  "productName": "Kadr",
+  "version": "1.0.15",
+  "description": "Kadr — скриншоты, аннотации, OCR, скролл-захват и запись экрана для macOS и Windows",
+  "main": "src/main/index.js",
+  "author": "Kadr",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build:helper:mac": "bash native/mac/build.sh",
+    "make-assets": "electron . --dev-script=scripts/make-assets.js",
+    "signing:mac": "node scripts/mac-signing.js",
+    "dist:mac": "npm run build:ffmpeg && npm run build:helper:mac && electron-builder --mac",
+    "dist:win": "npm run build:ffmpeg && electron-builder --win --x64",
+    "test": "node --test test/*.test.js native/test/rpc.test.js",
+    "test:electron": "electron test/integration/electron-smoke.cjs",
+    "build:ffmpeg": "bash scripts/build-ffmpeg.sh"
+  },
+  "devDependencies": {
+    "electron": "^44.11.5",
+    "electron-builder": "^26.18.0"
+  },
+  "dependencies": {
+    "jsqr": "^1.4.0",
+    "koffi": "^3.3.1",
+    "tesseract.js": "^7.0.0"
+  },
+  "overrides": {
+    "minimatch@>=7.0.0 <11.0.1": "11.0.1"
+  },
+  "build": {
+    "appId": "app.kadr.screenshots",
+    "productName": "Kadr",
+    "copyright": "Kadr",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "asarUnpack": [
+      "node_modules/tesseract.js/**",
+      "node_modules/tesseract.js-core/**",
+      "node_modules/koffi/**",
+      "node_modules/@koromix/**"
+    ],
+    "extraResources": [
+      {
+        "from": "build/shutter.wav",
+        "to": "shutter.wav"
+      },
+      {
+        "from": "LICENSE",
+        "to": "LICENSE"
+      },
+      {
+        "from": "THIRD_PARTY_NOTICES.md",
+        "to": "THIRD_PARTY_NOTICES.md"
+      },
+      {
+        "from": "resources/licenses",
+        "to": "licenses"
+      },
+      {
+        "from": "docs/licenses",
+        "to": "licenses/ocr",
+        "filter": [
+          "Apache-2.0.txt",
+          "Tesseract-*.txt"
+        ]
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "dmg"
+        },
+        {
+          "target": "zip"
+        }
+      ],
+      "identity": "-",
+      "sign": "./scripts/mac-sign.js",
+      "hardenedRuntime": false,
+      "extendInfo": {
+        "LSUIElement": true,
+        "NSMicrophoneUsageDescription": "Kadr записывает звук с микрофона во время записи экрана. / Kadr records microphone audio during screen recordings."
+      },
+      "extraResources": [
+        {
+          "from": "resources/bin/mac",
+          "to": "bin/mac",
+          "filter": [
+            "kadr-helper"
+          ]
+        },
+        {
+          "from": "resources/bin/ffmpeg/darwin-${arch}/ffmpeg",
+          "to": "bin/ffmpeg/ffmpeg"
+        },
+        {
+          "from": "resources/bin/ffmpeg/darwin-${arch}/build.txt",
+          "to": "licenses/ffmpeg/build.txt"
+        },
+        {
+          "from": "resources/tessdata",
+          "to": "tessdata"
+        }
+      ],
+      "files": [
+        "package.json",
+        "src/**/*",
+        "build/tray/**",
+        "build/drag.png",
+        "!test/**",
+        "!native/**",
+        "!docs/**",
+        "!scripts/**",
+        "!.github/**",
+        "!**/*.map",
+        "!**/test/**",
+        "!**/tests/**",
+        "!**/docs/**",
+        "!**/{README,CHANGELOG,HISTORY,CONTRIBUTING,readme,changelog,history,contributing}{,.*}",
+        "!node_modules/koffi/**",
+        "!node_modules/@koromix/**"
+      ],
+      "fileAssociations": [
+        {
+          "ext": [
+            "png",
+            "jpg",
+            "jpeg",
+            "webp",
+            "gif",
+            "bmp",
+            "tif",
+            "tiff",
+            "heic",
+            "heif"
+          ],
+          "name": "Image",
+          "role": "Editor",
+          "rank": "Alternate"
+        },
+        {
+          "ext": [
+            "mp4",
+            "mov",
+            "m4v",
+            "webm",
+            "mkv",
+            "avi"
+          ],
+          "name": "Video",
+          "role": "Editor",
+          "rank": "Alternate"
+        }
+      ]
+    },
+    "dmg": {
+      "title": "Kadr ${version}"
+    },
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        "msi",
+        "zip"
+      ],
+      "extraResources": [
+        {
+          "from": "resources/bin/ffmpeg/win32-${arch}/ffmpeg.exe",
+          "to": "bin/ffmpeg/ffmpeg.exe"
+        },
+        {
+          "from": "resources/bin/ffmpeg/win32-${arch}/build.txt",
+          "to": "licenses/ffmpeg/build.txt"
+        },
+        {
+          "from": "resources/tessdata",
+          "to": "tessdata"
+        }
+      ],
+      "files": [
+        "package.json",
+        "src/**/*",
+        "build/tray/**",
+        "build/drag.png",
+        "!test/**",
+        "!native/**",
+        "!docs/**",
+        "!scripts/**",
+        "!.github/**",
+        "!**/*.map",
+        "!**/test/**",
+        "!**/tests/**",
+        "!**/docs/**",
+        "!**/{README,CHANGELOG,HISTORY,CONTRIBUTING,readme,changelog,history,contributing}{,.*}"
+      ]
+    },
+    "electronLanguages": [
+      "en",
+      "ru"
+    ],
+    "afterPack": "./scripts/check-package.js",
+    "afterAllArtifactBuild": "./scripts/ffmpeg-source-artifact.js",
+    "msi": {
+      "oneClick": true,
+      "perMachine": false,
+      "shortcutName": "Kadr"
+    },
+    "artifactName": "Kadr-${version}-${os}-${arch}.${ext}",
+    "msiProjectCreated": "./scripts/msi-file-associations.js",
+    "publish": null
+  }
+}

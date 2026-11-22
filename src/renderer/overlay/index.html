@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' kadr:; img-src 'self' kadr: data: blob:; style-src 'self' 'unsafe-inline'" />
+    <link rel="stylesheet" href="../../shared/ui.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body class="transparent">
+    <img id="frozen" class="hidden" alt="" draggable="false" />
+    <canvas id="layer"></canvas>
+    <div id="size" class="size-label hidden"></div>
+    <div id="window-label" class="window-label hidden"></div>
+    <div id="loupe" class="loupe hidden">
+      <canvas id="loupe-canvas" width="132" height="132"></canvas>
+      <div class="loupe-info"><span id="loupe-pos"></span><span id="loupe-color"><i></i><b></b></span></div>
+    </div>
+    <div id="hint" class="hint hidden"></div>
+    <div id="confirm" class="confirm panel hidden">
+      <span id="confirm-size" class="confirm-size"></span>
+      <button class="btn" id="btn-last" data-i18n="overlay.lastRegion"></button>
+      <button class="btn" id="btn-full" data-i18n="overlay.fullscreen"></button>
+      <button class="ibtn" id="btn-cancel" aria-label="cancel"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg></button>
+      <button class="btn primary" id="btn-ok"><svg viewBox="0 0 24 24" width="16" height="16" style="stroke: currentColor; fill: none; stroke-width: 2.2"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg><span data-i18n="common.ok"></span></button>
+    </div>
+    <div id="countdown" class="countdown hidden"><span></span></div>
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>

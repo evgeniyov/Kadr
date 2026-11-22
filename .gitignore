@@ -1,0 +1,26 @@
+node_modules/
+dist/
+# Built by `npm run build:helper:mac` (and in CI)
+resources/bin/
+.DS_Store
+*.log
+
+# Local configuration and signing material
+.env*
+*.p12
+*.pem
+*.keychain*
+.kadr-signing/
+.signing/
+signing/
+.claude/settings.local.json
+
+# Crash reports and dumps
+Crashpad/
+crash-dumps/
+*.dmp
+*.dump
+*.crash
+*.ips
+core
+core.[0-9]*

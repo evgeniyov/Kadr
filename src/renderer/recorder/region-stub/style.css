@@ -1,0 +1,45 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  cursor: crosshair;
+}
+.shade {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.25);
+}
+body.selecting .shade {
+  background: transparent;
+}
+.sel {
+  position: fixed;
+  border: 1.5px dashed #fff;
+  outline: 1px solid rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.25);
+}
+.size {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 6px);
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: rgba(20, 20, 22, 0.85);
+  color: #fff;
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.hint {
+  position: fixed;
+  left: 50%;
+  top: 40px;
+  transform: translateX(-50%);
+  padding: 7px 14px;
+  border-radius: 9px;
+  background: rgba(20, 20, 22, 0.85);
+  color: #fff;
+  font-size: 12.5px;
+  pointer-events: none;
+}

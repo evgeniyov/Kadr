@@ -1,0 +1,134 @@
+name: Build and release
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - run: npm ci
+      - run: npm test
+
+  windows:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    runs-on: windows-2025
+    env:
+      GIT_CONFIG_COUNT: '1'
+      GIT_CONFIG_KEY_0: core.autocrlf
+      GIT_CONFIG_VALUE_0: 'false'
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - uses: msys2/setup-msys2@3c51bf698df1e37b2261f53cb67797b97761185c # v2
+        with:
+          msystem: UCRT64
+          path-type: inherit
+          update: true
+          install: >-
+            curl diffutils make tar xz
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-nasm
+            mingw-w64-ucrt-x86_64-pkgconf
+            mingw-w64-ucrt-x86_64-meson
+            mingw-w64-ucrt-x86_64-ninja
+      - run: npm ci
+      - name: Build FFmpeg
+        shell: msys2 {0}
+        run: bash scripts/build-ffmpeg.sh
+      - run: npm test
+      - run: npx --no-install electron-builder --win --x64 --publish never
+      - uses: actions/upload-artifact@v6
+        with:
+          name: kadr-windows-x64
+          if-no-files-found: error
+          path: |
+            dist/*.msi
+            dist/*.zip
+            dist/ffmpeg-source-win32-x64.tar.gz
+
+  macos:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-26
+            arch: arm64
+          - os: macos-26-intel
+            arch: x64
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: brew install meson
+      - if: matrix.arch == 'x64'
+        run: brew install nasm
+      - run: npm ci
+      - run: npm run build:ffmpeg
+      - run: npm test
+      - run: npm run build:helper:mac
+      - env:
+          KADR_SIGNING_P12: ${{ secrets.KADR_SIGNING_P12 }}
+          KADR_SIGNING_P12_PASSWORD: ${{ secrets.KADR_SIGNING_P12_PASSWORD }}
+        run: npx --no-install electron-builder --mac --publish never
+      - uses: actions/upload-artifact@v6
+        with:
+          name: kadr-macos-${{ matrix.arch }}
+          if-no-files-found: error
+          path: |
+            dist/*.dmg
+            dist/*.zip
+            dist/ffmpeg-source-darwin-${{ matrix.arch }}.tar.gz
+
+  release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: [windows, macos]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - uses: actions/download-artifact@v6
+        with:
+          pattern: kadr-*
+          path: release
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          node scripts/release-notes.js "$GITHUB_REF_NAME" > "$RUNNER_TEMP/kadr-release-notes.md"
+          shopt -s nullglob
+          windows=(release/kadr-windows-x64/*.msi release/kadr-windows-x64/*.zip)
+          arm64=(release/kadr-macos-arm64/*.dmg release/kadr-macos-arm64/*.zip)
+          intel=(release/kadr-macos-x64/*.dmg release/kadr-macos-x64/*.zip)
+          sources=(release/kadr-*/ffmpeg-source-*.tar.gz)
+          if [[ ${#windows[@]} != 2 || ${#arm64[@]} != 2 || ${#intel[@]} != 2 || ${#sources[@]} != 3 ]]; then
+            echo 'The release requires two packages and one corresponding FFmpeg source archive for each platform.' >&2
+            exit 1
+          fi
+          gh release create "$GITHUB_REF_NAME" --verify-tag --title "Kadr ${GITHUB_REF_NAME#v}" \
+            --notes-file "$RUNNER_TEMP/kadr-release-notes.md" \
+            "${windows[@]}" "${arm64[@]}" "${intel[@]}" "${sources[@]}"

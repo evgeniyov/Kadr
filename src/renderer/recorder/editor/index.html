@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' kadr:; img-src 'self' kadr: data: blob:; media-src 'self' kadr: blob:; style-src 'self' 'unsafe-inline'" />
+    <title>Kadr</title>
+    <link rel="stylesheet" href="../../../shared/ui.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header class="titlebar drag"><span id="title"></span></header>
+    <div class="layout">
+      <section class="main-col">
+        <div class="banner hidden" id="warning"></div>
+        <div class="stage" id="stage">
+          <video id="video" preload="auto" playsinline></video>
+          <div class="crop-layer hidden" id="crop-layer"></div>
+          <div class="stage-msg hidden" id="stage-msg"></div>
+        </div>
+        <div class="transport">
+          <button class="ibtn play" id="play" data-tip-pos="top"></button>
+          <span class="time" id="time">0:00.00</span>
+          <span class="spacer"></span>
+          <button class="btn sm" id="set-in" data-tip-pos="top"></button>
+          <span class="clip" id="clip"></span>
+          <button class="btn sm" id="set-out" data-tip-pos="top"></button>
+          <button class="ibtn sm" id="reset-trim" data-tip-pos="top"></button>
+        </div>
+        <div class="timeline" id="timeline"></div>
+        <div class="filebar">
+          <div class="file" id="file" draggable="true">
+            <span class="file-icon" id="file-icon"></span>
+            <div class="file-text">
+              <div class="name selectable" id="name"></div>
+              <div class="meta" id="meta"></div>
+            </div>
+          </div>
+          <span class="spacer"></span>
+          <button class="btn sm" id="open"></button>
+          <button class="btn sm" id="reveal"></button>
+          <button class="ibtn" id="copy" data-tip-pos="top"></button>
+          <button class="ibtn danger" id="delete" data-tip-pos="top"></button>
+        </div>
+      </section>
+      <aside class="side">
+        <div class="side-scroll" id="options"></div>
+        <div class="side-foot">
+          <div class="summary" id="summary"></div>
+          <div class="progress hidden" id="progress">
+            <div class="bar"><i id="progress-bar"></i></div>
+            <div class="progress-row"><span id="progress-text"></span><button class="btn sm" id="export-cancel"></button></div>
+          </div>
+          <div class="done hidden" id="done"></div>
+          <button class="btn primary big" id="export-new"></button>
+          <div class="pair">
+            <button class="btn" id="export-as"></button>
+            <button class="btn" id="export-replace" data-tip-pos="top"></button>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <div class="drop-hint hidden" id="drop-hint"><span></span></div>
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>

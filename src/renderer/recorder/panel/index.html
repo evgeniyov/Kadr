@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' kadr:; img-src 'self' kadr: data: blob:; style-src 'self' 'unsafe-inline'; media-src 'self' kadr: blob: mediastream:" />
+    <title>Kadr</title>
+    <link rel="stylesheet" href="../../../shared/ui.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="head drag">
+        <div class="title"><span class="rec-dot"></span><span data-i18n="recorder.panel.title"></span></div>
+        <div class="seg modes no-drag" id="modes" role="tablist">
+          <button data-mode="screen" role="tab"></button>
+          <button data-mode="window" role="tab"></button>
+          <button data-mode="region" role="tab"></button>
+        </div>
+        <button class="ibtn close no-drag" id="close" data-i18n-tip="recorder.close"></button>
+      </header>
+
+      <main>
+        <section class="source" id="source"></section>
+        <section class="options">
+          <div class="group" id="audio"></div>
+          <div class="group" id="video"></div>
+        </section>
+      </main>
+
+      <div class="alert hidden" id="alert" role="alert"></div>
+
+      <footer class="foot">
+        <div class="hint faint" id="hint"></div>
+        <button class="btn rec-btn" id="start"><span class="rec-dot"></span><span id="start-label" data-i18n="recorder.start"></span><kbd>↩</kbd></button>
+      </footer>
+    </div>
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>

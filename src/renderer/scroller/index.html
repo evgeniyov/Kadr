@@ -1,0 +1,26 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' kadr:; img-src 'self' kadr: data: blob:; media-src 'self' blob: mediastream:; style-src 'self' 'unsafe-inline'" />
+    <link rel="stylesheet" href="../../shared/ui.css" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body class="transparent">
+    <div id="frame" class="frame hidden"></div>
+    <div id="panel" class="spanel panel hidden">
+      <div class="drag head">
+        <b data-i18n="action.scrolling"></b>
+      </div>
+      <p id="hint" class="muted"></p>
+      <div class="thumb checker"><canvas id="thumb" width="1" height="1"></canvas></div>
+      <div id="progress" class="progress faint"></div>
+      <div class="buttons">
+        <button class="btn" id="cancel" data-i18n="scroll.cancel"></button>
+        <button class="btn primary" id="start" data-i18n="scroll.start"></button>
+        <button class="btn primary hidden" id="done" data-i18n="scroll.stop"></button>
+      </div>
+    </div>
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>

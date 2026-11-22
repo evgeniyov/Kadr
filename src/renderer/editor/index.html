@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' kadr:; img-src 'self' kadr: data: blob:; style-src 'self' 'unsafe-inline'; connect-src 'self' kadr: blob: data:" />
+    <link rel="stylesheet" href="../../shared/ui.css" />
+    <link rel="stylesheet" href="./style.css" />
+    <title>Kadr</title>
+  </head>
+  <body>
+    <div id="app">
+      <header id="topbar" class="drag">
+        <div class="tl-space"></div>
+        <div id="tools" class="no-drag"></div>
+        <div class="spacer"></div>
+        <div id="actions" class="no-drag"></div>
+      </header>
+      <div id="propsbar">
+        <div id="props"></div>
+        <div id="props-right"></div>
+      </div>
+      <main id="main">
+        <div id="viewport">
+          <canvas id="view"></canvas>
+          <textarea id="text-editor" class="hidden" spellcheck="false" autocomplete="off"></textarea>
+        </div>
+        <aside id="backdrop-panel" class="hidden"></aside>
+      </main>
+      <footer id="statusbar"></footer>
+    </div>
+    <input type="color" id="color-input" tabindex="-1" aria-hidden="true" />
+    <script type="module" src="./index.js"></script>
+  </body>
+</html>

@@ -1,0 +1,128 @@
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+.card-wrap {
+  position: absolute;
+  inset: 8px;
+  animation: slide-in 0.28s cubic-bezier(0.2, 0.9, 0.3, 1.15) both;
+}
+body.leaving .card-wrap {
+  animation: slide-out 0.22s ease-in both;
+}
+@keyframes slide-in {
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+}
+@keyframes slide-out {
+  to {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+}
+.pcard {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.12) inset, 0 0 0 0.5px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+}
+#img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  -webkit-user-drag: element;
+}
+.actions {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.42);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.pcard:hover .actions {
+  opacity: 1;
+}
+.pbtn,
+.close {
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+.pbtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+}
+.pbtn:hover {
+  background: rgba(255, 255, 255, 0.32);
+}
+.pbtn svg,
+.close svg {
+  width: 19px;
+  height: 19px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.close {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.close svg {
+  width: 13px;
+  height: 13px;
+  stroke-width: 2.4;
+}
+.pcard:hover .close {
+  opacity: 1;
+}
+.bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.15);
+}
+.bar i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: var(--accent);
+  transform-origin: left;
+}
+.pcard:hover .bar i {
+  animation-play-state: paused !important;
+}
+@keyframes shrink {
+  to {
+    transform: scaleX(0);
+  }
+}
